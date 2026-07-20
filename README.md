@@ -129,6 +129,27 @@ Issues and PRs welcome — especially traffic captures (with **all** cookies,
 tokens, names and child IDs redacted) that reveal a state-read or roster
 endpoint.
 
+### Releasing a new version
+
+HACS shows users a real version number (rather than a commit hash) only when
+a GitHub Release exists for it. To cut one:
+
+1. Bump the version **in lockstep** in all four places (nothing reads this
+   automatically, so a mismatch here is easy to miss):
+   - `custom_components/amazon_kids/manifest.json` (`version`)
+   - `pyproject.toml` (`[project] version`)
+   - `amazonkids/__init__.py` (`__version__`)
+   - `custom_components/amazon_kids/amazonkids/__init__.py` (`__version__`,
+     the vendored copy)
+2. Commit that as its own change (e.g. `Bump version to 0.3.0`) and merge it
+   to `main`.
+3. Tag the merge commit and push the tag: `git tag v0.3.0 && git push origin v0.3.0`.
+4. Create a GitHub Release from that tag (Releases → Draft a new release →
+   pick the tag) summarizing what changed since the last release.
+
+Follow [semver](https://semver.org/): this project is pre-1.0, so breaking
+changes (e.g. renaming/removing entities) are fine as a minor bump.
+
 ## Security & privacy
 
 - Credentials are stored in your Home Assistant config entry and sent only to
