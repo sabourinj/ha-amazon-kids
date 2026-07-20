@@ -29,7 +29,7 @@ from .runtime import AmazonKidsRuntimeData, ChildPauseState, PauseDuration
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.NUMBER, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.SELECT, Platform.SENSOR]
 
 
 def _parse_cookie_header(raw: str) -> dict[str, str]:
