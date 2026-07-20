@@ -15,7 +15,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .runtime import AmazonKidsRuntimeData, ChildPauseState
+from .runtime import (
+    AmazonKidsRuntimeData,
+    ChildPauseState,
+    all_kids_device_info,
+    child_device_info,
+)
 
 
 async def async_setup_entry(
@@ -45,6 +50,7 @@ class AmazonKidStatusSensor(SensorEntity):
     def __init__(self, entry_id: str, state: ChildPauseState) -> None:
         self._state_obj = state
         self._attr_unique_id = f"{entry_id}_{state.directed_id}_status"
+        self._attr_device_info = child_device_info(state)
         self._remove_listener: Callable[[], None] | None = None
 
     async def async_added_to_hass(self) -> None:
@@ -73,7 +79,7 @@ class AmazonKidsAllStatusSensor(SensorEntity):
     """Aggregate status across all children on this config entry."""
 
     _attr_has_entity_name = True
-    _attr_name = "All Kids Status"
+    _attr_name = "Status"
     _attr_icon = "mdi:account-multiple-check"
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = ["all_allowed", "all_paused", "mixed"]
@@ -81,6 +87,7 @@ class AmazonKidsAllStatusSensor(SensorEntity):
     def __init__(self, entry_id: str, states: list[ChildPauseState]) -> None:
         self._states = states
         self._attr_unique_id = f"{entry_id}_all_status"
+        self._attr_device_info = all_kids_device_info(entry_id)
         self._removers: list[Callable[[], None]] = []
 
     async def async_added_to_hass(self) -> None:
