@@ -12,7 +12,13 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable
 
+from homeassistant.helpers.entity import DeviceInfo
+
 from .amazonkids import AmazonKidsClient
+from .const import DOMAIN
+
+MANUFACTURER = "Amazon (unofficial)"
+MODEL = "Kids Parent Controls"
 
 
 @dataclass
@@ -50,3 +56,23 @@ class AmazonKidsRuntimeData:
 
     client: AmazonKidsClient
     children: dict[str, ChildPauseState]  # keyed by directed_id
+
+
+def child_device_info(state: ChildPauseState) -> DeviceInfo:
+    """Device grouping a child's entities so they're named after the child."""
+    return DeviceInfo(
+        identifiers={(DOMAIN, state.directed_id)},
+        name=state.name,
+        manufacturer=MANUFACTURER,
+        model=MODEL,
+    )
+
+
+def all_kids_device_info(entry_id: str) -> DeviceInfo:
+    """Device grouping the 'All Kids' entities for one config entry."""
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"{entry_id}_all")},
+        name="All Kids",
+        manufacturer=MANUFACTURER,
+        model=MODEL,
+    )

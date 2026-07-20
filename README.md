@@ -4,15 +4,16 @@ An **unofficial** Home Assistant integration that lets you pause and resume
 Amazon Kids (child) profiles — e.g. a "disable all screens" button that also
 turns off your other devices via your own automations.
 
-It creates, per child (plus an **All Kids** group):
+It creates one HA **device per child** (named after the child, e.g. "Alex"),
+plus an **All Kids** device, each with:
 
 - A **Pause** and a **Resume** button — these just fire the command; Amazon
   gives no way to read back whether a child is actually paused right now, so a
   button is the honest representation (a `switch` would imply state this
-  integration can't verify).
-- A **Status** sensor showing `allowed` / `paused` (and an aggregate
-  `All Kids Status` sensor) reflecting the *last command this integration
-  issued* — not verified truth. See "How it works" below.
+  integration can't verify). Shown in HA as e.g. `Alex Pause`, `All Kids Resume`.
+- A **Status** sensor showing `allowed` / `paused` (or, for All Kids,
+  `all_allowed` / `all_paused` / `mixed`) reflecting the *last command this
+  integration issued* — not verified truth. See "How it works" below.
 
 Pressing **Pause** uses a configured default duration; the `pause` service
 lets you set a custom duration per call by targeting a Pause button entity.
@@ -65,14 +66,10 @@ session expires.
 5. Find each child's `directedId`: it appears as the `childDirectedId` query
    param on calls like `get-adjusted-time-limits?childDirectedId=amzn1.account.XXXX`.
 
-Enter children as a JSON list:
-
-```json
-[
-  {"name": "Alex", "directed_id": "amzn1.account.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},
-  {"name": "Sam",  "directed_id": "amzn1.account.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"}
-]
-```
+The setup wizard collects these in two steps: credentials once, then each
+child one at a time (name + directedId, with a checkbox to add another) —
+no JSON to hand-write. Each child's name becomes that child's device/entity
+name in HA.
 
 ### When it stops working
 

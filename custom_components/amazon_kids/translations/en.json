@@ -7,15 +7,22 @@
         "data": {
           "cookie": "Cookie header value",
           "csrf_token": "x-amzn-csrf token",
-          "children": "Children (JSON list)",
           "default_pause_minutes": "Default pause duration (minutes)"
+        }
+      },
+      "child": {
+        "title": "Add a child",
+        "description": "Added so far: {added}. Enter this child's name and Amazon directedId. Find the directedId in your browser's Network tab: it appears as the childDirectedId query parameter on calls like get-adjusted-time-limits?childDirectedId=amzn1.account.XXXX. See the README for a full walkthrough.",
+        "data": {
+          "name": "Child's name",
+          "directed_id": "Amazon directedId",
+          "add_another": "Add another child after this one"
         }
       }
     },
     "error": {
-      "children_not_json": "Children field is not valid JSON.",
-      "children_empty": "Provide at least one child as a JSON list.",
-      "children_shape": "Each child needs a 'name' and a 'directed_id'."
+      "child_incomplete": "Enter both a name and a directedId.",
+      "child_duplicate": "That directedId was already added."
     },
     "abort": {
       "already_configured": "This account is already configured."

@@ -31,7 +31,12 @@ from .const import (
     SERVICE_PAUSE,
     SERVICE_RESUME,
 )
-from .runtime import AmazonKidsRuntimeData, ChildPauseState
+from .runtime import (
+    AmazonKidsRuntimeData,
+    ChildPauseState,
+    all_kids_device_info,
+    child_device_info,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -92,6 +97,9 @@ class _BaseKidButton(ButtonEntity):
         self._states = states
         target = "all" if is_all else states[0].directed_id
         self._attr_unique_id = f"{entry_id}_{target}_{suffix}"
+        self._attr_device_info = (
+            all_kids_device_info(entry_id) if is_all else child_device_info(states[0])
+        )
 
     def _target_ids(self) -> list[str]:
         return [state.directed_id for state in self._states]
@@ -112,7 +120,7 @@ class AmazonKidPauseButton(_BaseKidButton):
     ) -> None:
         super().__init__(entry_id, client, states, "pause", is_all)
         self._default_minutes = default_minutes
-        self._attr_name = "Pause All" if is_all else "Pause"
+        self._attr_name = "Pause"
 
     async def async_press(self) -> None:
         await self.async_service_pause()
@@ -141,7 +149,7 @@ class AmazonKidResumeButton(_BaseKidButton):
         is_all: bool = False,
     ) -> None:
         super().__init__(entry_id, client, states, "resume", is_all)
-        self._attr_name = "Resume All" if is_all else "Resume"
+        self._attr_name = "Resume"
 
     async def async_press(self) -> None:
         await self.async_service_resume()
