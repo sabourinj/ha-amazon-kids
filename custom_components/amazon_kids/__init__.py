@@ -21,13 +21,15 @@ from .const import (
     CONF_CHILDREN,
     CONF_COOKIE,
     CONF_CSRF_TOKEN,
+    CONF_DEFAULT_PAUSE_MINUTES,
+    DEFAULT_PAUSE_MINUTES,
     DOMAIN,
 )
-from .runtime import AmazonKidsRuntimeData, ChildPauseState
+from .runtime import AmazonKidsRuntimeData, ChildPauseState, PauseDuration
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.NUMBER, Platform.SENSOR]
 
 
 def _parse_cookie_header(raw: str) -> dict[str, str]:
@@ -58,8 +60,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         for child in entry.data[CONF_CHILDREN]
     }
+    default_minutes = entry.data.get(
+        CONF_DEFAULT_PAUSE_MINUTES, DEFAULT_PAUSE_MINUTES
+    )
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = AmazonKidsRuntimeData(
-        client=client, children=children
+        client=client,
+        children=children,
+        child_pause_minutes={
+            directed_id: PauseDuration(minutes=default_minutes)
+            for directed_id in children
+        },
+        all_pause_minutes=PauseDuration(minutes=default_minutes),
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

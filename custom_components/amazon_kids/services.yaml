@@ -11,7 +11,10 @@ pause:
   fields:
     minutes:
       name: Minutes
-      description: How long to pause. Omit to use the configured default.
+      description: >-
+        How long to pause, as a one-off override. Omit to use the paired
+        Pause Duration number entity's current value instead (e.g.
+        number.alex_pause_duration).
       required: false
       example: 120
       selector:

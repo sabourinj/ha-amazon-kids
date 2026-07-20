@@ -14,9 +14,13 @@ plus an **All Kids** device, each with:
 - A **Status** sensor showing `allowed` / `paused` (or, for All Kids,
   `all_allowed` / `all_paused` / `mixed`) reflecting the *last command this
   integration issued* — not verified truth. See "How it works" below.
+- A **Pause Duration** number (minutes) — buttons can't prompt for input when
+  pressed, so this is what pressing **Pause** actually uses: set it once, or
+  dial it up/down right before pressing Pause. Persists across restarts.
 
-Pressing **Pause** uses a configured default duration; the `pause` service
-lets you set a custom duration per call by targeting a Pause button entity.
+Pressing **Pause** uses that entity's current value; the `pause` service lets
+you override it with a one-off custom duration per call instead, without
+changing the number entity's saved value.
 
 > ⚠️ **This uses Amazon's private, undocumented endpoints.** There is no public
 > API. It can break at any time if Amazon changes their dashboard, and it may
@@ -79,9 +83,13 @@ maintenance task.
 
 ## Usage
 
+- Adjust `number.alex_pause_duration` (or `number.all_kids_pause_duration`) to
+  set how long the next press pauses for, then press **Pause**. Both live
+  under the same device, so they show up together in the UI.
 - Press any child's **Pause**/**Resume** button, or the **All Kids** versions,
-  from the UI or automations. Pause uses the configured default duration.
-- Custom duration — target the Pause button entity directly:
+  from the UI or automations.
+- One-off custom duration without touching the number entity's saved value —
+  target the Pause button entity directly:
 
 ```yaml
 service: amazon_kids.pause

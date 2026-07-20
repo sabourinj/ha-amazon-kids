@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amazonkids"
-version = "0.2.0"
+version = "0.2.1"
 description = "Unofficial async client for the Amazon Kids Parent Dashboard"
 readme = "README.md"
 requires-python = ">=3.11"

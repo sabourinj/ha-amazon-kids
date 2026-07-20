@@ -51,11 +51,22 @@ class ChildPauseState:
 
 
 @dataclass
+class PauseDuration:
+    """Mutable pause-length setting (minutes) shared by a Pause button and
+    its paired number entity -- the button reads whatever the number entity
+    currently holds, instead of a fixed configured value."""
+
+    minutes: int
+
+
+@dataclass
 class AmazonKidsRuntimeData:
     """Everything a config entry's platforms need: the API client plus state."""
 
     client: AmazonKidsClient
     children: dict[str, ChildPauseState]  # keyed by directed_id
+    child_pause_minutes: dict[str, PauseDuration]  # keyed by directed_id
+    all_pause_minutes: PauseDuration
 
 
 def child_device_info(state: ChildPauseState) -> DeviceInfo:
