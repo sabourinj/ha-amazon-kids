@@ -11,6 +11,7 @@ stores credentials.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Iterable
 
@@ -19,6 +20,7 @@ import aiohttp
 _LOGGER = logging.getLogger(__name__)
 
 BASE = "https://parents.amazon.com"
+REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=15)
 
 # Sentinel meaning "clear the off-screen override / resume normal schedule".
 RESUME_VALUE = -1
@@ -92,6 +94,7 @@ class AmazonKidsClient:
                 json=payload,
                 headers=self._headers,
                 cookies=self._cookies,
+                timeout=REQUEST_TIMEOUT,
             ) as resp:
                 if resp.status in (401, 403):
                     raise AmazonKidsAuthError(
@@ -107,7 +110,7 @@ class AmazonKidsClient:
                     return await resp.json(content_type=None)
                 except Exception:  # noqa: BLE001 - non-JSON success body
                     return {"raw": text}
-        except aiohttp.ClientResponseError as err:
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise AmazonKidsError(f"HTTP error on {path}: {err}") from err
 
     async def set_offscreen_time(
