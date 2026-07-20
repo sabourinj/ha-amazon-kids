@@ -1,12 +1,13 @@
 pause:
   name: Pause
   description: >-
-    Pause (set off-screen time for) the targeted Amazon Kids switch(es) for a
-    custom duration.
+    Pause (set off-screen time for) the targeted Amazon Kids Pause button's
+    child(ren) for a custom duration. Target a Pause button entity (e.g.
+    button.alex_pause or button.all_kids_pause).
   target:
     entity:
       integration: amazon_kids
-      domain: switch
+      domain: button
   fields:
     minutes:
       name: Minutes
@@ -22,8 +23,10 @@ pause:
 
 resume:
   name: Resume
-  description: Clear the off-screen override on the targeted switch(es).
+  description: >-
+    Clear the off-screen override for the targeted Amazon Kids Resume
+    button's child(ren) (e.g. button.alex_resume or button.all_kids_resume).
   target:
     entity:
       integration: amazon_kids
-      domain: switch
+      domain: button

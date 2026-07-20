@@ -4,13 +4,18 @@ An **unofficial** Home Assistant integration that lets you pause and resume
 Amazon Kids (child) profiles — e.g. a "disable all screens" button that also
 turns off your other devices via your own automations.
 
-It creates one `switch` per child plus a master **All Kids** switch:
+It creates, per child (plus an **All Kids** group):
 
-- **ON** = child is allowed (normal schedule)
-- **OFF** = child is paused (off-screen)
+- A **Pause** and a **Resume** button — these just fire the command; Amazon
+  gives no way to read back whether a child is actually paused right now, so a
+  button is the honest representation (a `switch` would imply state this
+  integration can't verify).
+- A **Status** sensor showing `allowed` / `paused` (and an aggregate
+  `All Kids Status` sensor) reflecting the *last command this integration
+  issued* — not verified truth. See "How it works" below.
 
-Turning a switch **off** pauses for a default duration; a `pause` service lets
-you set a custom duration per call.
+Pressing **Pause** uses a configured default duration; the `pause` service
+lets you set a custom duration per call by targeting a Pause button entity.
 
 > ⚠️ **This uses Amazon's private, undocumented endpoints.** There is no public
 > API. It can break at any time if Amazon changes their dashboard, and it may
@@ -32,9 +37,10 @@ POST /ajax/set-offscreen-time
 endpoint accepts multiple IDs, so pausing all children is a single request.
 
 No endpoint has been found that reports whether a child is *currently* paused,
-so **state is optimistic**: Home Assistant shows the state of the last command
-it sent. If you change something in the Amazon app directly, HA won't know
-until the next command. Entities are marked `assumed_state`.
+so pause/resume are exposed as **button** entities (press = fire the command,
+no state implied) rather than switches. The **Status** sensor(s) show the last
+command this integration issued — if you change something in the Amazon app
+directly, HA won't know until the next button press.
 
 ## Installation (HACS)
 
@@ -76,18 +82,20 @@ maintenance task.
 
 ## Usage
 
-- Toggle any child switch, or the **All Kids** switch, from the UI or automations.
-- Custom duration:
+- Press any child's **Pause**/**Resume** button, or the **All Kids** versions,
+  from the UI or automations. Pause uses the configured default duration.
+- Custom duration — target the Pause button entity directly:
 
 ```yaml
 service: amazon_kids.pause
 target:
-  entity_id: switch.all_kids
+  entity_id: button.all_kids_pause
 data:
   minutes: 120
 ```
 
-- Resume: `service: amazon_kids.resume` with the same target.
+- Resume: `service: amazon_kids.resume` targeting `button.all_kids_resume` (or
+  a child's own Resume button).
 
 ### Example "disable everything" script
 
@@ -96,7 +104,7 @@ alias: Disable all screens
 sequence:
   - service: amazon_kids.pause
     target:
-      entity_id: switch.all_kids
+      entity_id: button.all_kids_pause
     data:
       minutes: 180
   - service: media_player.turn_off
@@ -107,8 +115,12 @@ sequence:
 
 ## Limitations / roadmap
 
-- **Optimistic state only.** No known "is paused" read endpoint. PRs welcome if
-  you find one.
+- **No verified state, only last-commanded state.** The Status sensors reflect
+  what this integration last told Amazon, not a read-back. No known "is
+  paused" read endpoint exists; PRs welcome if you find one.
+- **Upgrading from a version with switch entities?** The `switch.*` entities
+  are gone (replaced by `button.*` + `sensor.*`); remove the old ones from
+  Settings → Devices & Services → Entities, they'll show as unavailable.
 - **No auto-discovery of children.** IDs are entered manually. A household/roster
   endpoint may exist; contributions welcome.
 - **Amazon may cap very long durations.** Long pauses are clamped to 24h; to

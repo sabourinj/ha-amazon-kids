@@ -73,6 +73,12 @@ class AmazonKidsConfigFlow(ConfigFlow, domain=DOMAIN):
             except ValueError as err:
                 errors["base"] = str(err)
             else:
+                unique_id = "_".join(
+                    sorted(child[CONF_CHILD_ID] for child in children)
+                )
+                await self.async_set_unique_id(unique_id)
+                self._abort_if_unique_id_configured()
+
                 data = {
                     CONF_COOKIE: user_input[CONF_COOKIE].strip(),
                     CONF_CSRF_TOKEN: user_input[CONF_CSRF_TOKEN].strip(),

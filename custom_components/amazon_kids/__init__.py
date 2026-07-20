@@ -15,11 +15,19 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .amazonkids import AmazonKidsClient
-from .const import CONF_COOKIE, CONF_CSRF_TOKEN, DOMAIN
+from .const import (
+    CONF_CHILD_ID,
+    CONF_CHILD_NAME,
+    CONF_CHILDREN,
+    CONF_COOKIE,
+    CONF_CSRF_TOKEN,
+    DOMAIN,
+)
+from .runtime import AmazonKidsRuntimeData, ChildPauseState
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.SWITCH]
+PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.SENSOR]
 
 
 def _parse_cookie_header(raw: str) -> dict[str, str]:
@@ -44,7 +52,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         session=session,
     )
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = client
+    children = {
+        child[CONF_CHILD_ID]: ChildPauseState(
+            name=child[CONF_CHILD_NAME], directed_id=child[CONF_CHILD_ID]
+        )
+        for child in entry.data[CONF_CHILDREN]
+    }
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = AmazonKidsRuntimeData(
+        client=client, children=children
+    )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
