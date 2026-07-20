@@ -24,8 +24,6 @@ from homeassistant.util import dt as dt_util
 from .amazonkids import AmazonKidsClient, AmazonKidsError
 from .const import (
     ATTR_MINUTES,
-    CONF_DEFAULT_PAUSE_MINUTES,
-    DEFAULT_PAUSE_MINUTES,
     DOMAIN,
     MAX_PAUSE_SECONDS,
     SERVICE_PAUSE,
@@ -34,6 +32,7 @@ from .const import (
 from .runtime import (
     AmazonKidsRuntimeData,
     ChildPauseState,
+    PauseDuration,
     all_kids_device_info,
     child_device_info,
 )
@@ -47,24 +46,24 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     runtime: AmazonKidsRuntimeData = hass.data[DOMAIN][entry.entry_id]
-    default_minutes = entry.data.get(
-        CONF_DEFAULT_PAUSE_MINUTES, DEFAULT_PAUSE_MINUTES
-    )
     states = list(runtime.children.values())
 
     entities: list[ButtonEntity] = []
     for state in states:
+        duration = runtime.child_pause_minutes[state.directed_id]
         entities.append(
-            AmazonKidPauseButton(
-                entry.entry_id, runtime.client, [state], default_minutes
-            )
+            AmazonKidPauseButton(entry.entry_id, runtime.client, [state], duration)
         )
         entities.append(AmazonKidResumeButton(entry.entry_id, runtime.client, [state]))
 
     if states:
         entities.append(
             AmazonKidPauseButton(
-                entry.entry_id, runtime.client, states, default_minutes, is_all=True
+                entry.entry_id,
+                runtime.client,
+                states,
+                runtime.all_pause_minutes,
+                is_all=True,
             )
         )
         entities.append(
@@ -106,7 +105,8 @@ class _BaseKidButton(ButtonEntity):
 
 
 class AmazonKidPauseButton(_BaseKidButton):
-    """Pause for the configured default duration (or a custom one via service)."""
+    """Pause for the paired Pause Duration number entity's current value
+    (or a custom one-off duration via the amazon_kids.pause service)."""
 
     _attr_icon = "mdi:pause-circle"
 
@@ -115,18 +115,21 @@ class AmazonKidPauseButton(_BaseKidButton):
         entry_id: str,
         client: AmazonKidsClient,
         states: list[ChildPauseState],
-        default_minutes: int,
+        duration: PauseDuration,
         is_all: bool = False,
     ) -> None:
         super().__init__(entry_id, client, states, "pause", is_all)
-        self._default_minutes = default_minutes
+        self._duration = duration
         self._attr_name = "Pause"
 
     async def async_press(self) -> None:
         await self.async_service_pause()
 
     async def async_service_pause(self, minutes: int | None = None) -> None:
-        seconds = min((minutes or self._default_minutes) * 60, MAX_PAUSE_SECONDS)
+        seconds = min(
+            (minutes if minutes is not None else self._duration.minutes) * 60,
+            MAX_PAUSE_SECONDS,
+        )
         try:
             await self._client.pause(self._target_ids(), seconds)
         except AmazonKidsError as err:
