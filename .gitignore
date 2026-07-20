@@ -1,0 +1,20 @@
+# Never commit captured traffic or secrets
+*.har
+*.cookies
+secrets.yaml
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/

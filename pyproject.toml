@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amazonkids"
+version = "0.1.0"
+description = "Unofficial async client for the Amazon Kids Parent Dashboard"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = ["aiohttp>=3.9"]
+
+[project.urls]
+Homepage = "https://github.com/sabourinj/ha-amazon-kids"
+
+[tool.setuptools]
+packages = ["amazonkids"]

@@ -1,0 +1,29 @@
+pause:
+  name: Pause
+  description: >-
+    Pause (set off-screen time for) the targeted Amazon Kids switch(es) for a
+    custom duration.
+  target:
+    entity:
+      integration: amazon_kids
+      domain: switch
+  fields:
+    minutes:
+      name: Minutes
+      description: How long to pause. Omit to use the configured default.
+      required: false
+      example: 120
+      selector:
+        number:
+          min: 1
+          max: 1440
+          unit_of_measurement: minutes
+          mode: box
+
+resume:
+  name: Resume
+  description: Clear the off-screen override on the targeted switch(es).
+  target:
+    entity:
+      integration: amazon_kids
+      domain: switch

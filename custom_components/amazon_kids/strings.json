@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Amazon Kids Parent Controls",
+        "description": "Enter credentials harvested from a logged-in parents.amazon.com browser session. See the README for how to obtain these. Treat them like a password.",
+        "data": {
+          "cookie": "Cookie header value",
+          "csrf_token": "x-amzn-csrf token",
+          "children": "Children (JSON list)",
+          "default_pause_minutes": "Default pause duration (minutes)"
+        }
+      }
+    },
+    "error": {
+      "children_not_json": "Children field is not valid JSON.",
+      "children_empty": "Provide at least one child as a JSON list.",
+      "children_shape": "Each child needs a 'name' and a 'directed_id'."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  }
+}
