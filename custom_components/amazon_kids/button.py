@@ -105,7 +105,7 @@ class _BaseKidButton(ButtonEntity):
 
 
 class AmazonKidPauseButton(_BaseKidButton):
-    """Pause for the paired Pause Duration number entity's current value
+    """Pause for the paired Pause Duration select entity's current preset
     (or a custom one-off duration via the amazon_kids.pause service)."""
 
     _attr_icon = "mdi:pause-circle"

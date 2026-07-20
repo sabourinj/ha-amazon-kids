@@ -53,8 +53,8 @@ class ChildPauseState:
 @dataclass
 class PauseDuration:
     """Mutable pause-length setting (minutes) shared by a Pause button and
-    its paired number entity -- the button reads whatever the number entity
-    currently holds, instead of a fixed configured value."""
+    its paired select entity -- the button reads whatever preset the select
+    entity currently holds, instead of a fixed configured value."""
 
     minutes: int
 

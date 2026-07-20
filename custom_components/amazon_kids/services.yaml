@@ -13,8 +13,8 @@ pause:
       name: Minutes
       description: >-
         How long to pause, as a one-off override. Omit to use the paired
-        Pause Duration number entity's current value instead (e.g.
-        number.alex_pause_duration).
+        Pause Duration select entity's current preset instead (e.g.
+        select.alex_pause_duration).
       required: false
       example: 120
       selector:
