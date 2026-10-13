@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
@@ -28,6 +29,13 @@ STEP_USER_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEFAULT_PAUSE_MINUTES, default=DEFAULT_PAUSE_MINUTES
         ): int,
+    }
+)
+
+STEP_CREDENTIALS_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_COOKIE): str,
+        vol.Required(CONF_CSRF_TOKEN): str,
     }
 )
 
@@ -111,3 +119,59 @@ class AmazonKidsConfigFlow(ConfigFlow, domain=DOMAIN):
             title="Amazon Kids",
             data={**self._entry_data, CONF_CHILDREN: self._children},
         )
+
+    async def async_step_reauth(
+        self, entry_data: Mapping[str, Any]
+    ) -> ConfigFlowResult:
+        """Start re-authentication after Amazon rejected the stored session."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Collect a freshly harvested cookie and CSRF token."""
+        if user_input is not None:
+            return self.async_update_reload_and_abort(
+                self._get_reauth_entry(),
+                data_updates={
+                    CONF_COOKIE: user_input[CONF_COOKIE].strip(),
+                    CONF_CSRF_TOKEN: user_input[CONF_CSRF_TOKEN].strip(),
+                },
+            )
+
+        return self.async_show_form(
+            step_id="reauth_confirm", data_schema=STEP_CREDENTIALS_SCHEMA
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Replace credentials (and the default pause) without re-adding children.
+
+        Keeping the same config entry preserves its devices and entity IDs,
+        which deleting and re-adding the integration would not.
+        """
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            return self.async_update_reload_and_abort(
+                entry,
+                data_updates={
+                    CONF_COOKIE: user_input[CONF_COOKIE].strip(),
+                    CONF_CSRF_TOKEN: user_input[CONF_CSRF_TOKEN].strip(),
+                    CONF_DEFAULT_PAUSE_MINUTES: user_input[CONF_DEFAULT_PAUSE_MINUTES],
+                },
+            )
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_COOKIE): str,
+                vol.Required(CONF_CSRF_TOKEN): str,
+                vol.Optional(
+                    CONF_DEFAULT_PAUSE_MINUTES,
+                    default=entry.data.get(
+                        CONF_DEFAULT_PAUSE_MINUTES, DEFAULT_PAUSE_MINUTES
+                    ),
+                ): int,
+            }
+        )
+        return self.async_show_form(step_id="reconfigure", data_schema=schema)

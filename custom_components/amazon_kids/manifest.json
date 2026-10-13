@@ -1,11 +1,14 @@
 {
   "domain": "amazon_kids",
   "name": "Amazon Kids Parent Controls",
-  "codeowners": [],
+  "codeowners": [
+    "@sabourinj"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/sabourinj/ha-amazon-kids",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/sabourinj/ha-amazon-kids/issues",
   "requirements": [],
-  "version": "0.2.2"
+  "version": "0.2.3"
 }
