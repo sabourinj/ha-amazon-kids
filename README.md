@@ -51,8 +51,8 @@ directly, HA won't know until the next button press.
 
 ## Installation (HACS)
 
-1. HACS → Integrations → three-dot menu → **Custom repositories**.
-2. Add this repo URL, category **Integration**.
+1. In HACS, open the menu (⋮) → **Custom repositories**.
+2. Add `https://github.com/sabourinj/ha-amazon-kids` with type **Integration**.
 3. Install **Amazon Kids Parent Controls**, then restart Home Assistant.
 4. Settings → Devices & Services → **Add Integration** → *Amazon Kids*.
 
@@ -95,14 +95,14 @@ maintenance task.
   select's saved value — target the Pause button entity directly:
 
 ```yaml
-service: amazon_kids.pause
+action: amazon_kids.pause
 target:
   entity_id: button.all_kids_pause
 data:
   minutes: 120
 ```
 
-- Resume: `service: amazon_kids.resume` targeting `button.all_kids_resume` (or
+- Resume: `action: amazon_kids.resume` targeting `button.all_kids_resume` (or
   a child's own Resume button).
 
 ### Example "disable everything" script
@@ -110,12 +110,12 @@ data:
 ```yaml
 alias: Disable all screens
 sequence:
-  - service: amazon_kids.pause
+  - action: amazon_kids.pause
     target:
       entity_id: button.all_kids_pause
     data:
       minutes: 180
-  - service: media_player.turn_off
+  - action: media_player.turn_off
     target:
       entity_id: media_player.living_room_tv
   # + your router/firewall action for the Switch, etc.
@@ -145,13 +145,10 @@ endpoint.
 HACS shows users a real version number (rather than a commit hash) only when
 a GitHub Release exists for it. To cut one:
 
-1. Bump the version **in lockstep** in all four places (nothing reads this
+1. Bump the version **in lockstep** in both places (nothing reads this
    automatically, so a mismatch here is easy to miss):
    - `custom_components/amazon_kids/manifest.json` (`version`)
-   - `pyproject.toml` (`[project] version`)
-   - `amazonkids/__init__.py` (`__version__`)
-   - `custom_components/amazon_kids/amazonkids/__init__.py` (`__version__`,
-     the vendored copy)
+   - `custom_components/amazon_kids/amazonkids/__init__.py` (`__version__`)
 2. Commit that as its own change (e.g. `Bump version to 0.3.0`) and merge it
    to `main`.
 3. Tag the merge commit and push the tag: `git tag v0.3.0 && git push origin v0.3.0`.
