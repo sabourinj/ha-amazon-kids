@@ -18,6 +18,23 @@
           "directed_id": "Amazon directedId",
           "add_another": "Add another child after this one"
         }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Amazon Kids",
+        "description": "Amazon rejected the saved session, which usually means the cookie expired. Log in at parents.amazon.com again and paste a fresh Cookie header and x-amzn-csrf token (see the README). Your children and entities are kept.",
+        "data": {
+          "cookie": "Cookie header value",
+          "csrf_token": "x-amzn-csrf token"
+        }
+      },
+      "reconfigure": {
+        "title": "Update Amazon Kids credentials",
+        "description": "Paste a freshly harvested Cookie header and x-amzn-csrf token from a logged-in parents.amazon.com session. Your children, devices and entity IDs are kept.",
+        "data": {
+          "cookie": "Cookie header value",
+          "csrf_token": "x-amzn-csrf token",
+          "default_pause_minutes": "Default pause duration (minutes)"
+        }
       }
     },
     "error": {
@@ -25,7 +42,9 @@
       "child_duplicate": "That directedId was already added."
     },
     "abort": {
-      "already_configured": "This account is already configured."
+      "already_configured": "This account is already configured.",
+      "reauth_successful": "Re-authentication was successful.",
+      "reconfigure_successful": "Credentials updated."
     }
   }
 }

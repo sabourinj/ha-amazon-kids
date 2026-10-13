@@ -21,7 +21,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .amazonkids import AmazonKidsClient, AmazonKidsError
+from .amazonkids import AmazonKidsAuthError, AmazonKidsClient, AmazonKidsError
 from .const import (
     ATTR_MINUTES,
     DOMAIN,
@@ -92,6 +92,7 @@ class _BaseKidButton(ButtonEntity):
         suffix: str,
         is_all: bool,
     ) -> None:
+        self._entry_id = entry_id
         self._client = client
         self._states = states
         target = "all" if is_all else states[0].directed_id
@@ -102,6 +103,11 @@ class _BaseKidButton(ButtonEntity):
 
     def _target_ids(self) -> list[str]:
         return [state.directed_id for state in self._states]
+
+    def _start_reauth(self) -> None:
+        """Prompt the user (via a repair) for a fresh cookie and CSRF token."""
+        if entry := self.hass.config_entries.async_get_entry(self._entry_id):
+            entry.async_start_reauth(self.hass)
 
 
 class AmazonKidPauseButton(_BaseKidButton):
@@ -132,6 +138,12 @@ class AmazonKidPauseButton(_BaseKidButton):
         )
         try:
             await self._client.pause(self._target_ids(), seconds)
+        except AmazonKidsAuthError as err:
+            self._start_reauth()
+            raise HomeAssistantError(
+                f"Amazon Kids pause failed: session expired. Re-authenticate "
+                "from Settings → Devices & services."
+            ) from err
         except AmazonKidsError as err:
             raise HomeAssistantError(f"Amazon Kids pause failed: {err}") from err
         resumes_at = dt_util.utcnow() + timedelta(seconds=seconds)
@@ -160,6 +172,12 @@ class AmazonKidResumeButton(_BaseKidButton):
     async def async_service_resume(self) -> None:
         try:
             await self._client.resume(self._target_ids())
+        except AmazonKidsAuthError as err:
+            self._start_reauth()
+            raise HomeAssistantError(
+                f"Amazon Kids resume failed: session expired. Re-authenticate "
+                "from Settings → Devices & services."
+            ) from err
         except AmazonKidsError as err:
             raise HomeAssistantError(f"Amazon Kids resume failed: {err}") from err
         for state in self._states:

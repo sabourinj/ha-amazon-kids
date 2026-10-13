@@ -79,9 +79,15 @@ name in HA.
 
 ### When it stops working
 
-If pauses start failing, your session expired. Re-harvest the `Cookie` and
-`x-amzn-csrf` values and reconfigure the integration. This is the most common
-maintenance task.
+Amazon sessions expire periodically; this is the most common maintenance task.
+When Amazon rejects a pause or resume, Home Assistant raises a
+**Reauthentication required** repair. Re-harvest the `Cookie` and
+`x-amzn-csrf` values (steps above) and paste them in.
+
+You can also update credentials at any time from **Settings → Devices &
+services → Amazon Kids → ⋮ → Reconfigure**. Either way your children,
+devices and entity IDs are kept, so there's no need to delete and re-add the
+integration.
 
 ## Usage
 
